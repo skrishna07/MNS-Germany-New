@@ -702,6 +702,8 @@ def create_two_pdfs(
         pdf_path = Path(input_pdf)
         out_dir_path = Path(out_dir)
 
+        original_file_name = pdf_path.name
+
         # Use defaults if not provided
         f_headers = finance_headers or FINANCE_HEADERS_DEFAULT
         f_fields = finance_fields or FINANCE_FIELDS_DEFAULT
@@ -777,7 +779,7 @@ def create_two_pdfs(
             bs_range_start = max(0, bs_start - pages_before)
             bs_range_end = min(total_pages - 1, max(bs_end, bs_start + pages_after))
 
-            bs_out = out_dir_path / "balance_sheet.pdf"
+            bs_out = out_dir_path / f"{original_file_name}_balance_sheet.pdf"
             write_pdf_range(pdf_path, bs_out, bs_range_start, bs_range_end)
             logging.info(
                 f"Balance Sheet extracted: pages {bs_range_start}-{bs_range_end}"
@@ -794,7 +796,7 @@ def create_two_pdfs(
             pnl_range_start = max(0, pnl_start - pages_before)
             pnl_range_end = min(total_pages - 1, max(pnl_end, pnl_start + pages_after))
 
-            pnl_out = out_dir_path / "profit_and_loss.pdf"
+            pnl_out = out_dir_path / f"{original_file_name}_profit_and_loss.pdf"
             write_pdf_range(pdf_path, pnl_out, pnl_range_start, pnl_range_end)
             logging.info(
                 f"P&L extracted: pages {pnl_range_start}-{pnl_range_end}"
