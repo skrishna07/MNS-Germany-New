@@ -80,8 +80,8 @@ def main():
                                 # if api_update_status:
                                 #     logging.info(f"Successfully updated in API for Receipt No - {receipt_no}")
                                 try:
-                                    # send_email(completed_subject, completed_body, business_mails,
-                                    #            attachments)
+                                    send_email(completed_subject, completed_body, business_mails,
+                                               attachments)
                                     send_email(completed_subject, completed_body, support_mails)
                                 except Exception as e:
                                     logging.error(f"Error sending mail {e}")
