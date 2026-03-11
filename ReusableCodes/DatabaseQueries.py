@@ -417,6 +417,14 @@ def insert_datatable_with_table_director(config_dict, db_config, sql_table_name,
     elif sql_table_name == 'address_history':
         address_line_column_name = config_dict['address_line_column_name']
         address_line = result_dict[address_line_column_name]
+        current_registered_address = get_registered_address(db_config, registration_no)
+
+        if str(current_registered_address).lower() == str(address_line).lower():
+            logging.info(f"Skipping this {address_line} as it is equal to current address {current_registered_address}")
+            db_cursor.close()
+            db_connection.close()
+            return
+
         select_query = (
             f'SELECT * FROM {sql_table_name} WHERE {registration_column_name} = "{registration_no}" AND LOWER({address_line_column_name})'
             f' = "{str(address_line).lower()}"')
@@ -435,17 +443,18 @@ def insert_datatable_with_table_director(config_dict, db_config, sql_table_name,
             logging.info(tuple(df_row.values))
             db_cursor.execute(insert_query, tuple(df_row.values))
         else:
-            result_dict.pop(registration_column_name)
-            result_dict.pop(address_line_column_name)
-            column_names_list = list(column_names_list)
-            column_names_list.remove(registration_column_name)
-            column_names_list.remove(address_line_column_name)
-            update_query = f'''UPDATE {sql_table_name}
-                                                                SET {address_line_column_name} = "{address_line}"
-                                                               WHERE {registration_column_name} = "{registration_no}" '''
-            logging.info(update_query)
-            db_cursor.execute(update_query)
-            logging.info(f"Data row values are saved in table '{sql_table_name}' with \n {df_row}")
+            logging.info(f"{address_line} already present in database")
+            # result_dict.pop(registration_column_name)
+            # result_dict.pop(address_line_column_name)
+            # column_names_list = list(column_names_list)
+            # column_names_list.remove(registration_column_name)
+            # column_names_list.remove(address_line_column_name)
+            # update_query = f'''UPDATE {sql_table_name}
+            #                                                     SET {address_line_column_name} = "{address_line}"
+            #                                                    WHERE {registration_column_name} = "{registration_no}" '''
+            # logging.info(update_query)
+            # db_cursor.execute(update_query)
+            # logging.info(f"Data row values are saved in table '{sql_table_name}' with \n {df_row}")
     elif sql_table_name == 'auditors':
         name_column_name = config_dict['name_column_name_in_db_auditors']
         name = result_dict[name_column_name]
@@ -1105,6 +1114,24 @@ def update_excel_status_and_path(db_config, registration_no, database_id, excel_
     except Exception as e:
         logging.error(f"Exception occurred while updating document status: {e}")
         return False  # Return False if an error occurred
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def get_registered_address(db_config, registration_no):
+    setup_logging()
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
+    try:
+        get_registered_address_query = f"SELECT registered_full_address FROM Company WHERE registration_no = '{registration_no}'"
+        logging.info(get_registered_address_query)
+        cursor.execute(get_registered_address_query)
+        registered_address = cursor.fetchone()[0]
+        return registered_address
+    except Exception as e:
+        logging.error(f"Exception occurred while updating retry counter by {e}")
+        return None
     finally:
         cursor.close()
         connection.close()

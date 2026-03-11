@@ -8,6 +8,7 @@ from ExtractionReusableCodes.OpenAI import split_openai
 from ReusableCodes.DatabaseQueries import update_database_single_value
 from ReusableCodes.DatabaseQueries import insert_datatable_with_table_director
 from ExtractionReusableCodes.ExtractReadablePDF import extract_text_from_readable_pdf
+from ExtractionReusableCodes.ExtractReadablePDF import extract_text_by_type
 import traceback
 from datetime import datetime
 from auditor_details import analyze_read_auditors
@@ -79,7 +80,8 @@ def registry_document_main(db_config, config_dict, pdf_path, output_file_path, r
             sub_list = {main_node: [sub_dict]}
             open_ai_dict.update(sub_list)
         if 'cd' in str(document_name).lower():
-            pdf_text = process_textract_document(pdf_path)
+            # pdf_text = process_textract_document(pdf_path)
+            pdf_text = extract_text_by_type(pdf_path)
             registry_prompt = config_dict['CD_prompt'] + '\n' + str(open_ai_dict)
         elif 'ad' in str(document_name).lower():
             pdf_text = extract_text_from_readable_pdf(pdf_path)

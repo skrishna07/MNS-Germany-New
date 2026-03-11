@@ -45,7 +45,7 @@ def data_extraction_and_insertion(db_config, registration_no, config_dict, compa
                 document_name = document[2]
                 document_download_path = document[6]
                 category = document[4]
-                output_path = str(document_download_path).replace('.pdf', '.xlsx')
+                output_path = str(document_download_path).replace('.PDF', '.pdf').replace('.pdf', '.xlsx')
                 if 'registry' in str(category).lower():
                     if not os.path.exists('Config'):
                         os.makedirs('Config')
